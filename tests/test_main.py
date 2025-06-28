@@ -5,6 +5,7 @@ from app.main import app, REQUEST_LIMIT
 
 load_dotenv()
 
+
 REQUEST_LIMIT = int(os.getenv("REQUEST_LIMIT", 5))
 
 client = TestClient(app)

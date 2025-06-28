@@ -46,5 +46,3 @@ async def limit_test(request: Request):
     request_log[client_ip].append(current_time)
 
     return {"message": "Request successful"}
-
-
