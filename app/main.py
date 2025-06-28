@@ -1,18 +1,21 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import time
 from collections import defaultdict
 
-from fastapi import FastAPI
+load_dotenv()
+
 
 app = FastAPI()
 
 # Stores request timestamps per IP address
 request_log = defaultdict(list)
 
-# Rate limit settings
-REQUEST_LIMIT = 5          # number of allowed requests
-TIME_WINDOW = 60           # time window in seconds
+# Rate limit settings from .env
+REQUEST_LIMIT = int(os.getenv("REQUEST_LIMIT", 5))     # number of allowed requests
+TIME_WINDOW = int(os.getenv("TIME_WINDOW", 60)) 
 
 
 @app.get("/ping")
