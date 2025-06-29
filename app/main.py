@@ -1,22 +1,13 @@
-import os
-from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from redis import Redis
+from app.config import REQUEST_LIMIT, TIME_WINDOW, REDIS_HOST, REDIS_PORT
 import time
-from collections import defaultdict
-
-load_dotenv()
-
 
 app = FastAPI()
 
-# Stores request timestamps per IP address
-request_log = defaultdict(list)
-
-# Rate limit settings from .env
-REQUEST_LIMIT = int(os.getenv("REQUEST_LIMIT", 5))     # number of allowed requests
-TIME_WINDOW = int(os.getenv("TIME_WINDOW", 60)) 
-
+# Connect to Redis
+redis = Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 @app.get("/ping")
 def ping():
@@ -25,24 +16,24 @@ def ping():
 @app.get("/limit-test")
 async def limit_test(request: Request):
     client_ip = request.client.host
-    current_time = time.time()
+    key = f"rate_limit:{client_ip}"
 
-    # Get previous request times for this IP
-    request_times = request_log[client_ip]
+    current = redis.incr(key)
 
-    # Filter out timestamps older than the time window
-    request_times = [t for t in request_times if current_time - t < TIME_WINDOW]
+    if current == 1:
+        redis.expire(key, TIME_WINDOW)
 
-    # Update the log with filtered times
-    request_log[client_ip] = request_times
-
-    if len(request_times) >= REQUEST_LIMIT:
+    if current > REQUEST_LIMIT:
+        ttl = redis.ttl(key)
+        # Safety fallback if key doesn't exist for some reason
+        if ttl == -2:
+            ttl = TIME_WINDOW
         return JSONResponse(
             status_code=429,
-            content={"detail": "Rate limit exceeded. Try again later."}
+            content={"detail": f"Rate limit exceeded. Try again in {ttl} seconds."}
         )
 
-    # Add current request timestamp
-    request_log[client_ip].append(current_time)
-
-    return {"message": "Request successful"}
+    return {
+        "message": "Request successful",
+        "requests_left": REQUEST_LIMIT - current
+    }
