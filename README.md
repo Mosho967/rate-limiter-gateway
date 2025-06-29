@@ -27,25 +27,21 @@ This project demonstrates practical use of IP-based rate limiting using FastAPI.
 - python-dotenv  
 - pytest  
 
----
-
-## Project Structure
-
+```text
 rate-limiter-gateway/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py          # API routes and rate limiting logic
-│   └── config.py        # Environment configuration
+│   ├── main.py        # API routes and rate limiting logic
+│   └── config.py      # Environment configuration
 │
 ├── tests/
-│   └── test_main.py     # Unit tests for endpoints
+│   └── test_main.py   # Unit tests for endpoints
 │
-├── .env                 # Environment variables (not committed)
-├── requirements.txt     # Python dependencies
+├── .env               # Environment variables (not committed)
+├── requirements.txt   # Python dependencies
 ├── .gitignore
 └── README.md
-
----
+```
 
 ## Getting Started
 
