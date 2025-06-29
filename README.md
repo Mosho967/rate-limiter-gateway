@@ -1,63 +1,118 @@
 # Rate Limiter Gateway
 
-A backend microservice built with FastAPI to enforce rate limiting on incoming API requests.
+A lightweight gateway service built with FastAPI that implements basic IP-based rate limiting. Designed to protect backend services from excessive traffic, potential denial-of-service attacks, or abusive clients.
+
+---
+
+## Overview
+
+This project demonstrates practical use of IP-based rate limiting using FastAPI. It tracks client IPs in memory and enforces request limits within a configurable time window. It’s a foundation for more advanced gateway control mechanisms in production-grade systems.
+
+---
 
 ## Features
 
-- Enforces request limits per client (e.g., 10 requests per minute)
-- Prevents abuse and protects backend services from overload
-- Lightweight and suitable as a gateway layer for microservice architectures
-- Ready to expand with Redis, authentication, and deployment pipelines
+- IP-based rate limiting per client  
+- Configurable rate limit parameters via environment variables  
+- Minimal and clean FastAPI application structure  
+- Basic automated endpoint testing with pytest  
+- Modular setup ready for Redis, JWT, or admin extensions  
+
+---
+
+## Technologies
+
+- Python 3.13.5  
+- FastAPI  
+- python-dotenv  
+- pytest  
+
+---
 
 ## Project Structure
 
-```
 rate-limiter-gateway/
 ├── app/
-│   └── main.py
-├── .gitignore 
-├── README.md
-├── requirements.txt
-```
+│   ├── __init__.py
+│   ├── main.py          # API routes and rate limiting logic
+│   └── config.py        # Environment configuration
+│
+├── tests/
+│   └── test_main.py     # Unit tests for endpoints
+│
+├── .env                 # Environment variables (not committed)
+├── requirements.txt     # Python dependencies
+├── .gitignore
+└── README.md
+
+---
 
 ## Getting Started
 
-### 1. Clone the Repository
+Clone the repository:
 
-```
 git clone https://github.com/Mosho967/rate-limiter-gateway.git
 cd rate-limiter-gateway
-```
 
-### 2. Set Up Virtual Environment (Windows)
+Create a virtual environment and activate it:
 
-```
 python -m venv venv
-venv\Scripts\activate
-```
+# Windows
+.\venv\Scripts\activate
+# macOS/Linux
+source venv/bin/activate
 
-### 3. Install Dependencies
+Install dependencies:
 
-```
 pip install -r requirements.txt
-```
 
-### 4. Run the App
+Create a .env file with the following content:
 
-```
+REQUEST_LIMIT=5
+TIME_WINDOW=60
+
+Run the development server:
+
 uvicorn app.main:app --reload
-```
 
-Then open:
+---
 
-- http://127.0.0.1:8000/ping – test route
-- http://127.0.0.1:8000/docs – Swagger API documentation
+## Running Tests
 
-## To-Do
+pytest tests/test_main.py
 
-- [ ] Implement rate limiting logic
-- [ ] Add `/limit-test` route
-- [ ] Add unit tests for endpoints
-- [ ] Support environment variables for configuration
-- [ ] Optional: Integrate Redis for distributed rate limits
-- [ ] Optional: Deploy to Render or Railway
+---
+
+## API Endpoints
+
+Method    Endpoint        Description
+GET       /ping           Health check
+GET       /limit-test     Endpoint with rate limit
+
+Example Successful Response:
+
+{
+  "message": "Request successful"
+}
+
+After Rate Limit Exceeded:
+
+{
+  "detail": "Rate limit exceeded. Try again later."
+}
+
+---
+
+## Future Enhancements
+
+- Redis-based distributed rate limiting  
+- JWT user-level throttling  
+- Retry headers with dynamic backoff  
+- Admin UI to monitor IP activity  
+
+---
+
+## Author
+
+Mosho  
+GitHub: https://github.com/Mosho967
