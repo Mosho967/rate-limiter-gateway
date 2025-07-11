@@ -1,95 +1,96 @@
 # Rate Limiter Gateway
 
-A lightweight gateway service built with FastAPI that implements basic IP-based rate limiting. Designed to protect backend services from excessive traffic, potential denial-of-service attacks, or abusive clients.
+A lightweight gateway service built with **FastAPI** that implements IP-based rate limiting. Designed to protect backend services from excessive traffic, denial-of-service attacks, or abusive clients.
+
+---
 
 ## Overview
 
-This project demonstrates practical use of IP-based rate limiting using FastAPI. It tracks client IPs in memory or Redis and enforces request limits within a configurable time window. It’s a foundation for more advanced gateway control mechanisms in production-grade systems.
+This project enforces request limits per client IP within a configurable time window. It supports **in-memory and Redis-based tracking** and uses a modular structure to enable scaling or extending to JWT or admin-based control logic. 
+
+---
+
+## Use Case
+
+This gateway can be placed in front of any backend service or microservice to protect endpoints from being overwhelmed by repeated or abusive requests. For example:
+
+- **Public APIs**: This system could be used to prevent a single client from hitting `/search` or `/login` endpoints excessively.
+- **Authentication services**: Throttle brute-force login attempts by IP.
+- **Internal microservices**: Limit inter-service chatter during spikes or failures.
+- **Frontend gateways**: Add lightweight rate limiting before forwarding traffic to cloud-based APIs.
+
+By configuring environment variables, teams can adapt the gateway to enforce per-client request limits that align with system capacity and user fairness.
+
+
+---
+
+
 
 ## Features
 
-- IP-based rate limiting per client
-- Configurable rate limit parameters via environment variables
-- Redis support for distributed rate limiting
-- Minimal and clean FastAPI application structure
-- Basic automated endpoint testing with pytest
-- Modular setup ready for JWT or admin extensions
+- IP-based rate limiting (token-bucket logic)
+- Configurable via `.env` variables
+- Optional Redis support for distributed usage
+- Minimal and clean FastAPI structure
+- Basic endpoint testing with `pytest`
+- Modular setup for JWT, user scopes, or dashboards
+
+---
 
 ## Technologies
 
-- Python 3.13.5
+- Python 3.10+
 - FastAPI
 - python-dotenv
-- redis
+- Redis
 - pytest
+
+---
 
 ## Project Structure
 
 ```
 rate-limiter-gateway/
 ├── app/
-│   ├── __init__.py
-│   ├── main.py        # API routes and rate limiting logic
-│   └── config.py      # Environment configuration
-│
+│   ├── main.py        # API routes + limiter logic
+│   └── config.py      # Env config
 ├── tests/
-│   └── test_main.py   # Unit tests for endpoints
-│
-├── .env               # Environment variables (not committed)
-├── requirements.txt   # Python dependencies
-├── .gitignore
+│   └── test_main.py   # Unit tests
+├── .env
+├── requirements.txt
 └── README.md
 ```
 
-## Getting Started
+---
 
-Clone the repository:
+## Getting Started
 
 ```bash
 git clone https://github.com/Mosho967/rate-limiter-gateway.git
 cd rate-limiter-gateway
-```
-
-Create a virtual environment and activate it:
-
-```bash
 python -m venv venv
-```
-
-**Windows**
-
-```bash
-.\venv\Scripts\activate
-```
-
-**macOS/Linux**
-
-```bash
-source venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
+source venv/bin/activate        # Windows: .\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file with the following content:
+### Setup `.env`:
 
-```
+```env
 REQUEST_LIMIT=5
 TIME_WINDOW=60
 REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
-Run the development server:
+### Run the dev server:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Make sure Redis is running before testing the rate limiter.
+Ensure **Redis** is running before making requests.
+
+---
 
 ## Running Tests
 
@@ -97,38 +98,42 @@ Make sure Redis is running before testing the rate limiter.
 pytest tests/test_main.py
 ```
 
+---
+
 ## API Endpoints
 
-- **GET `/ping`**  
-  Used for health checks to ensure the server is running properly.
+- **GET `/ping`** – Health check
+- **GET `/limit-test`** – Rate-limited endpoint
 
-- **GET `/limit-test`**  
-  This is the rate-limited endpoint. It tracks requests from each IP and enforces limits based on the configured environment settings.
-
-### Example Successful Response
+### Success Response
 
 ```json
-{
-  "message": "Request successful"
-}
+{ "message": "Request successful" }
 ```
 
-### After Rate Limit Exceeded
+### After Limit Exceeded
 
 ```json
-{
-  "detail": "Rate limit exceeded. Try again later."
-}
+{ "detail": "Rate limit exceeded. Try again later." }
 ```
+
+### Example Usage:
+
+```bash
+curl http://localhost:8000/limit-test
+```
+
+---
 
 ## Future Enhancements
 
-- JWT user-level throttling
-- Retry headers with dynamic backoff
-- Admin UI to monitor IP activity
+- JWT-based user throttling
+- Retry headers with backoff delay
+- Admin UI for rate monitor
+
+---
 
 ## Author
 
-**Mosho**
-
-GitHub: [https://github.com/Mosho967](https://github.com/Mosho967)
+**Mosho**  
+[github.com/Mosho967](https://github.com/Mosho967)
