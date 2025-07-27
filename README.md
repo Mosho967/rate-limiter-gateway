@@ -28,7 +28,7 @@ By configuring environment variables, teams can adapt the gateway to enforce per
 
 ## Features
 
-- IP-based rate limiting (token-bucket logic)
+- IP-based rate limiting 
 - Configurable via `.env` variables
 - Optional Redis support for distributed usage
 - Minimal and clean FastAPI structure
